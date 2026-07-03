@@ -32,9 +32,6 @@ jobs:
           gradle-version: '8.5'
           cache-read-only: false
 
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
