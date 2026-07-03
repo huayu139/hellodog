@@ -32,7 +32,8 @@ jobs:
           gradle-version: '8.5'
           cache-read-only: false
 
-      # 移除单独的 Gradle Wrapper 生成步骤，改由 Gradle 自行处理
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
