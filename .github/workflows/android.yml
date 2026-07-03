@@ -32,11 +32,46 @@ jobs:
           gradle-version: '8.7'
           cache-read-only: false
 
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper --gradle-version 8.7 --distribution-type all
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hellodog-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hellodog-apk
+          path: app/build/outputs/apk/debug/
+
+      - name: Get version name
+        id: version
+        run: |
+          VERSION_NAME=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          files: app/build/outputs/apk/debug/app-debug.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
