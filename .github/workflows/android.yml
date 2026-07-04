@@ -21,6 +21,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          java-home-option: 'latest-adopt'
+          server-jre: '17'
 
       - name: Install Android SDK
         uses: android-actions/setup-android@v3
