@@ -21,8 +21,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          java-home-option: 'latest-adopt'
-          server-jre: '17'
 
       - name: Install Android SDK
         uses: android-actions/setup-android@v3
@@ -32,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.7'
           cache-read-only: false
-          cache-overwrite-on-failure: true
+          cache-overwrite-existing: true
           add-job-summary-as-pr-comment: always
 
       - name: Grant execute permission for gradlew
