@@ -30,9 +30,14 @@ jobs:
         with:
           gradle-version: '8.7'
           cache-read-only: false
+          cache-overwrite-on-failure: true
+          add-job-summary-as-pr-comment: always
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
+
+      - name: Clean Gradle cache and refresh dependencies
+        run: ./gradlew cleanBuildCache --no-daemon --refresh-dependencies --stacktrace
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon --refresh-dependencies --stacktrace
