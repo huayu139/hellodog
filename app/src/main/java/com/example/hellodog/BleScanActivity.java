@@ -102,7 +102,7 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
         ListView deviceListView = findViewById(R.id.device_list_view);
         deviceListView.setOnItemClickListener((parent, view, position, id) -> {
             String selectedDeviceInfo = deviceList.get(position);
-            String[] parts = selectedDeviceInfo.split(" \((\w+)\)");
+                    String[] parts = selectedDeviceInfo.split(" \((\w+)\)");
             String deviceName = parts[0];
             String deviceAddress = parts[1];
             
@@ -122,7 +122,6 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
                             Toast.makeText(this, "扫描完成", Toast.LENGTH_SHORT).show();
                         }
                 ));
-    }
     }
 
     private void stopScan() {
