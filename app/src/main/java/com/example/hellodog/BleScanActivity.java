@@ -3,8 +3,10 @@ package com.example.hellodog;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -61,7 +63,6 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
         });
     }
 
-    @SuppressLint("CheckResult")
     private void startScan() {
         // 清空之前的扫描结果
         deviceList.clear();
@@ -69,35 +70,48 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
 
         // 扫描 BLE 设备
         Disposable scanDisposable = rxBleClient.scanBleDevices(
-                        new ScanSettings.Builder()
-                                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                                .build()
-                )
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        scanResult -> {
-                            // 扫描到设备时的回调
-                            RxBleDevice device = scanResult.getBleDevice();
-                            BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
-                            String deviceInfo = String.format(
-                                    "%s (%s)",
-                                    bluetoothDevice.getName() != null ? bluetoothDevice.getName() : "Unknown",
-                                    bluetoothDevice.getAddress()
-                            );
-                            if (!deviceList.contains(deviceInfo)) {
-                                deviceList.add(deviceInfo);
-                                deviceAdapter.notifyDataSetChanged();
-                            }
-                        },
-                        throwable -> {
-                            // 扫描错误
-                            Log.e(TAG, "扫描错误: " + throwable.getMessage());
-                            Toast.makeText(this, "扫描错误: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                );
+                new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                        .build()
+        )
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+                scanResult -> {
+                    // 扫描到设备时的回调
+                    RxBleDevice device = scanResult.getBleDevice();
+                    BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
+                    String deviceName = bluetoothDevice.getName() != null ? bluetoothDevice.getName() : "Unknown Device";
+                    String deviceInfo = String.format("%s (%s)", deviceName, bluetoothDevice.getAddress());
+                    
+                    if (!deviceList.contains(deviceInfo)) {
+                        deviceList.add(deviceInfo);
+                        deviceAdapter.notifyDataSetChanged();
+                    }
+                },
+                throwable -> {
+                    // 扫描错误
+                    Log.e(TAG, "扫描错误: " + throwable.getMessage());
+                    Toast.makeText(this, "扫描错误: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+        );
 
         // 添加到 CompositeDisposable 管理
         compositeDisposable.add(scanDisposable);
+
+        // 点击设备列表项，跳转到连接界面
+        ListView deviceListView = findViewById(R.id.device_list_view);
+        deviceListView.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedDeviceInfo = deviceList.get(position);
+            String[] parts = selectedDeviceInfo.split(" \((\w+)\)");
+            String deviceName = parts[0];
+            String deviceAddress = parts[1];
+            
+            // 跳转到连接界面
+            Intent intent = new Intent(BleScanActivity.this, BleConnectActivity.class);
+            intent.putExtra("device_name", deviceName);
+            intent.putExtra("device_address", deviceAddress);
+            startActivity(intent);
+        });
 
         // 10 秒后自动停止扫描
         compositeDisposable.add(io.reactivex.rxjava3.core.Observable.timer(10, java.util.concurrent.TimeUnit.SECONDS)
@@ -108,6 +122,7 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
                             Toast.makeText(this, "扫描完成", Toast.LENGTH_SHORT).show();
                         }
                 ));
+    }
     }
 
     private void stopScan() {
