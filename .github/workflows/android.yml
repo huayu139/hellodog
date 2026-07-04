@@ -37,11 +37,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Clean Gradle cache and refresh dependencies
-        run: ./gradlew cleanBuildCache --no-daemon --refresh-dependencies --stacktrace
-
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --refresh-dependencies --stacktrace
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
