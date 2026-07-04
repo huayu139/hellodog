@@ -69,8 +69,7 @@
     public static final android.os.Parcelable$Creator *;
 }
 
-# Keep all classes in the support library
--keep class androidx.** { *; }
+-keep class com.example.hellodog.** { *; }
 
 # Keep all classes in the Android framework
 -keep class android.** { *; }
