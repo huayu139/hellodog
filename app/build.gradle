@@ -3,7 +3,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace 'com.example.hellodog'
-    compileSdk 34
+    compileSdkVersion 34
     defaultConfig {
         applicationId "com.example.hellodog"
         minSdkVersion 21
