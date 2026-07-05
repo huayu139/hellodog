@@ -99,7 +99,7 @@ public class BleConnectActivity extends AppCompatActivity {
             return;
         }
 
-        RxBleDevice device = rxBleClient.getBleDevice(deviceAddress);
+        RxBleDevice device = RxBleClient.create(this).getBleDevice(deviceAddress);
         appendLog("正在连接设备...");
 
         Disposable connectionDisposable = device.establishConnection(false)
@@ -137,7 +137,7 @@ public class BleConnectActivity extends AppCompatActivity {
         appendLog("📡 开始订阅通知...");
 
         Disposable notificationDisposable = rxBleConnection.setupNotification(NOTIFY_CHARACTERISTIC_UUID)
-            .flatMapSingle(notificationObservable -> notificationObservable)
+            .flatMap(notificationObservable -> notificationObservable)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 bytes -> {
