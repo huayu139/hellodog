@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   build:
@@ -38,13 +40,25 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug --no-daemon --stacktrace || {
+          echo "Build failed, attempting to upload bug report...";
+          exit 1;
+        }
 
       - name: Upload APK as artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: hellodog-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+      - name: Upload Bug Report on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-bug-report
+          path: app/build/reports/bug-reporter/
           retention-days: 7
 
   release:
