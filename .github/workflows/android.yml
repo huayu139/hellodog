@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gradle-bug-report
-          path: app/build/reports/bug-reporter/
+          path: "app/build/reports/bug-reporter/"
           retention-days: 7
 
   release:
