@@ -34,7 +34,9 @@ jobs:
           accept-android-sdk-licenses: true
 
       - name: Accept Android SDK Licenses
-        run: yes | sdkmanager --licenses > /dev/null
+        run: |
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          yes | sdkmanager --licenses > /dev/null
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
