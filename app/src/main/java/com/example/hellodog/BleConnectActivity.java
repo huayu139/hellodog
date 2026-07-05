@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.polidea.rxandroidble3.RxBleClient;
+import com.polidea.rxandroidble3.RxBleDevice;
 
 import com.polidea.rxandroidble3.RxBleConnection;
 import com.polidea.rxandroidble3.exceptions.BleDisconnectedException;
