@@ -136,8 +136,8 @@ public class BleConnectActivity extends AppCompatActivity {
 
         appendLog("📡 开始订阅通知...");
 
-        Disposable notificationDisposable = rxBleConnection.setupNotification(SERVICE_UUID, NOTIFY_CHARACTERISTIC_UUID, NotificationSetupMode.DEFAULT)
-            .flatMap(notificationObservable -> notificationObservable)
+        Disposable notificationDisposable = rxBleConnection.setupNotification(NOTIFY_CHARACTERISTIC_UUID)
+            .flatMapSingle(notificationObservable -> notificationObservable)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 bytes -> {
@@ -171,7 +171,7 @@ public class BleConnectActivity extends AppCompatActivity {
             byte[] dataToSend = hexStringToBytes(hexCommand);
             appendLog("📤 准备发送数据: " + hexCommand + " (" + Arrays.toString(dataToSend) + ")");
 
-            Disposable sendDisposable = rxBleConnection.writeCharacteristic(WRITE_CHARACTERISTIC_UUID, dataToSend)
+            Disposable sendDisposable = rxBleConnection.writeCharacteristic(WRITE_CHARACTERISTIC_UUID, dataToSend, RxBleConnection.WriteOperationPriority.HIGH)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     characteristicValue -> {
@@ -264,7 +264,7 @@ public class BleConnectActivity extends AppCompatActivity {
             return "设备已断开连接";
         } else if (throwable instanceof BleGattException) {
             BleGattException gattException = (BleGattException) throwable;
-            return "BLE Gatt 错误: " + gattException.getBleGattOperation() + " - 状态码: " + gattException.getStatus();
+            return "BLE Gatt 错误: " + gattException.getMessage() + " - 状态码: " + gattException.getStatus();
         } else {
             return throwable.getMessage() != null ? throwable.getMessage() : "未知错误";
         }
