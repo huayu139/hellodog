@@ -11,6 +11,10 @@ permissions:
   issues: write
   pull-requests: write
 
+env:
+  NODE_VERSION: '24'
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,8 +50,6 @@ jobs:
             echo "Build failed, attempting to upload bug report..."
             exit 1
           fi
-        # 确保缩进一致，无语法错误
-        # 确保 YAML 语法正确，无缺失冒号或缩进错误
 
       - name: Upload APK as artifact
         if: success()
@@ -64,6 +66,37 @@ jobs:
           name: gradle-bug-report
           path: "app/build/reports/bug-reporter/"
           retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hellodog-apk
+          path: app/build/outputs/apk/debug/
+
+      - name: Get version name
+        id: version
+        run: |
+          VERSION_NAME=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          files: app/build/outputs/apk/debug/app-debug.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     needs: build
