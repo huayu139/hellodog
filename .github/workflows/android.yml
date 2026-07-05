@@ -44,6 +44,7 @@ jobs:
           echo "Build failed, attempting to upload bug report...";
           exit 1;
         }
+        # 确保 YAML 语法正确，无缺失冒号或缩进错误
 
       - name: Upload APK as artifact
         if: success()
