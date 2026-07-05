@@ -1,7 +1,47 @@
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.gradle.bug-reporter' version '5.2.1'
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'com.gradle.bug-reporter'
+
+android {
+    namespace 'com.example.hellodog'
+    compileSdkVersion 34
+    defaultConfig {
+        applicationId "com.example.hellodog"
+        minSdkVersion 21
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // RxAndroidBle for BLE operations
+    implementation 'com.polidea.rxandroidble3:rxandroidble:1.18.1'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
+    // EasyPermissions for runtime permission handling
+    implementation 'pub.devrel:easypermissions:3.0.0'
+}
+
+// 配置 gradle-bug-reporter 插件
+bugReporter {
+    outputDir = file("$projectDir/build/reports/bug-reporter")
+    enabled = true
 }
 
 android {
