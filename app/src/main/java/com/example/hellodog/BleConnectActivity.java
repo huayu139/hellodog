@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.polidea.rxandroidble3.RxBleClient;
-import com.polidea.rxandroidble3.RxBleConnection;
+import com.polidea.rxandroidble3.RxBleConnection.NotificationSetupMode;
 import com.polidea.rxandroidble3.RxBleDevice;
 import com.polidea.rxandroidble3.exceptions.BleDisconnectedException;
 import com.polidea.rxandroidble3.exceptions.BleGattException;
@@ -136,7 +136,7 @@ public class BleConnectActivity extends AppCompatActivity {
 
         appendLog("📡 开始订阅通知...");
 
-        Disposable notificationDisposable = rxBleConnection.setupNotification(SERVICE_UUID, NOTIFY_CHARACTERISTIC_UUID)
+        Disposable notificationDisposable = rxBleConnection.setupNotification(SERVICE_UUID, NOTIFY_CHARACTERISTIC_UUID, NotificationSetupMode.DEFAULT)
             .flatMap(notificationObservable -> notificationObservable)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -171,7 +171,7 @@ public class BleConnectActivity extends AppCompatActivity {
             byte[] dataToSend = hexStringToBytes(hexCommand);
             appendLog("📤 准备发送数据: " + hexCommand + " (" + Arrays.toString(dataToSend) + ")");
 
-            Disposable sendDisposable = rxBleConnection.writeCharacteristic(SERVICE_UUID, WRITE_CHARACTERISTIC_UUID, dataToSend)
+            Disposable sendDisposable = rxBleConnection.writeCharacteristic(WRITE_CHARACTERISTIC_UUID, dataToSend)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     characteristicValue -> {
