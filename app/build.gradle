@@ -1,5 +1,8 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.gradle.bug-reporter' version '5.2.1'
+}
 
 android {
     namespace 'com.example.hellodog'
@@ -35,4 +38,10 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
     // EasyPermissions for runtime permission handling
     implementation 'pub.devrel:easypermissions:3.0.0'
+}
+
+// 配置 gradle-bug-reporter 插件
+bugReporter {
+    outputDir = file("$projectDir/build/reports/bug-reporter")
+    enabled = true
 }
