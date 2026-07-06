@@ -23,8 +23,11 @@ import com.polidea.rxandroidble3.exceptions.BleDisconnectedException;
 import com.polidea.rxandroidble3.exceptions.BleGattException;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
