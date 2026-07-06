@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private Button btnScanBle;
+    private Button btnConnectSaved;
     private BluetoothAdapter bluetoothAdapter;
     private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
         @Override
@@ -38,7 +39,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 初始化按钮
         btnScanBle = findViewById(R.id.btnScanBle);
+        btnConnectSaved = findViewById(R.id.btnConnectSaved);
+        
+        btnConnectSaved.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 打开已保存设备的列表或直接连接
+                Intent intent = new Intent(MainActivity.this, BleConnectActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // 设置扫描按钮点击事件
         btnScanBle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,6 +69,20 @@ public class MainActivity extends AppCompatActivity {
             // 设备不支持蓝牙
             btnScanBle.setEnabled(false);
             Toast.makeText(this, "此设备不支持蓝牙", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // 检查是否有上次保存的设备信息，若有且蓝牙已打开则尝试直接进入连接界面并自动连接
+        android.content.SharedPreferences prefs = getSharedPreferences("hellodog_prefs", MODE_PRIVATE);
+        String lastAddr = prefs.getString("last_device_address", null);
+        String lastName = prefs.getString("last_device_name", null);
+        if (lastAddr != null && bluetoothAdapter.isEnabled()) {
+            Intent intent = new Intent(MainActivity.this, BleConnectActivity.class);
+            intent.putExtra("device_name", lastName);
+            intent.putExtra("device_address", lastAddr);
+            intent.putExtra("auto_connect", true);
+            startActivity(intent);
+            finish();
             return;
         }
 

@@ -26,4 +26,13 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView" />
 
+    <Button
+        android:id="@+id/btnConnectSaved"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="连接已保存的蓝牙设备"
+        app:layout_constraintTop_toBottomOf="@id/btnScanBle"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

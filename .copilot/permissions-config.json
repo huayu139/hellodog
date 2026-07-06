@@ -1,0 +1,14 @@
+{
+  "tools": {
+    "allow": ["*"]
+  },
+  "paths": {
+    "allow": ["./"],
+    "deny": []
+  },
+  "urls": {
+    "allow": ["*"],
+    "deny": []
+  },
+  "defaultAction": "allow"
+}

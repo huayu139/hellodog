@@ -54,6 +54,28 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
         deviceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceList);
         deviceListView.setAdapter(deviceAdapter);
 
+        // 点击设备列表项，跳转到连接界面
+        deviceListView.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < deviceList.size()) {
+                String selectedDeviceInfo = deviceList.get(position);
+                int lastOpenParen = selectedDeviceInfo.lastIndexOf('(');
+                int lastCloseParen = selectedDeviceInfo.lastIndexOf(')');
+                
+                if (lastOpenParen >= 0 && lastCloseParen > lastOpenParen) {
+                    String deviceName = selectedDeviceInfo.substring(0, lastOpenParen).trim();
+                    String deviceAddress = selectedDeviceInfo.substring(lastOpenParen + 1, lastCloseParen);
+                    
+                    // 跳转到连接界面
+                    Intent intent = new Intent(BleScanActivity.this, BleConnectActivity.class);
+                    intent.putExtra("device_name", deviceName);
+                    intent.putExtra("device_address", deviceAddress);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "无法解析设备地址", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         // 设置扫描按钮点击事件
         Button scanButton = findViewById(R.id.scan_button);
         scanButton.setOnClickListener(v -> {
@@ -97,21 +119,6 @@ public class BleScanActivity extends AppCompatActivity implements EasyPermission
 
         // 添加到 CompositeDisposable 管理
         compositeDisposable.add(scanDisposable);
-
-        // 点击设备列表项，跳转到连接界面
-        ListView deviceListView = findViewById(R.id.device_list_view);
-        deviceListView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedDeviceInfo = deviceList.get(position);
-                    String[] parts = selectedDeviceInfo.split(" ((\\w+))");
-            String deviceName = parts[0];
-            String deviceAddress = parts[1];
-            
-            // 跳转到连接界面
-            Intent intent = new Intent(BleScanActivity.this, BleConnectActivity.class);
-            intent.putExtra("device_name", deviceName);
-            intent.putExtra("device_address", deviceAddress);
-            startActivity(intent);
-        });
 
         // 10 秒后自动停止扫描
         compositeDisposable.add(io.reactivex.rxjava3.core.Observable.timer(10, java.util.concurrent.TimeUnit.SECONDS)

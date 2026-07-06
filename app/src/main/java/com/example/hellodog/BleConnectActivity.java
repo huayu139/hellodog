@@ -22,8 +22,9 @@ import com.polidea.rxandroidble3.RxBleConnection;
 import com.polidea.rxandroidble3.exceptions.BleDisconnectedException;
 import com.polidea.rxandroidble3.exceptions.BleGattException;
 
-import java.util.Arrays;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -34,7 +35,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  * BLE 设备连接和数据通信 Activity
  * 使用异步方式处理数据接收和发送，以16进制格式显示数据
  */
-public class BleConnectActivity extends AppCompatActivity {
+public class BleConnectActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = "BleConnectActivity";
     private static final int REQUEST_CODE_BLE_PERMISSIONS = 102;
@@ -49,6 +50,7 @@ public class BleConnectActivity extends AppCompatActivity {
     private RxBleConnection rxBleConnection;
     private String deviceName;
     private String deviceAddress;
+    private boolean autoConnectRequested = false;
 
     // UI 组件
     private TextView deviceInfoText;
@@ -69,6 +71,7 @@ public class BleConnectActivity extends AppCompatActivity {
         // 获取传递的设备信息
         deviceName = getIntent().getStringExtra("device_name");
         deviceAddress = getIntent().getStringExtra("device_address");
+        autoConnectRequested = getIntent().getBooleanExtra("auto_connect", false);
         
         if (deviceAddress == null) {
             Toast.makeText(this, "设备地址为空", Toast.LENGTH_SHORT).show();
@@ -92,6 +95,13 @@ public class BleConnectActivity extends AppCompatActivity {
         connectButton.setOnClickListener(v -> connectToDevice());
         sendButton.setOnClickListener(v -> sendHexCommand());
         disconnectButton.setOnClickListener(v -> disconnectDevice());
+
+        // 如果请求了自动连接，尝试发起连接（若权限不足会请求权限）
+        if (autoConnectRequested) {
+            if (checkAndRequestPermissions()) {
+                connectToDevice();
+            }
+        }
     }
 
     @SuppressLint("CheckResult")
@@ -100,7 +110,7 @@ public class BleConnectActivity extends AppCompatActivity {
             return;
         }
 
-        RxBleDevice device = RxBleClient.create(this).getBleDevice(deviceAddress);
+        RxBleDevice device = rxBleClient.getBleDevice(deviceAddress);
         appendLog("正在连接设备...");
 
         Disposable connectionDisposable = device.establishConnection(false)
@@ -109,6 +119,13 @@ public class BleConnectActivity extends AppCompatActivity {
                 connection -> {
                     rxBleConnection = connection;
                     appendLog("✅ 连接成功！");
+
+                    // 保存最近连接的设备信息，供下次自动连接使用
+                    getSharedPreferences("hellodog_prefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("last_device_name", deviceName != null ? deviceName : "")
+                            .putString("last_device_address", deviceAddress)
+                            .apply();
                     
                     // 更新按钮状态
                     connectButton.setEnabled(false);
@@ -252,7 +269,8 @@ public class BleConnectActivity extends AppCompatActivity {
     private void appendLog(String message) {
         runOnUiThread(() -> {
             String currentLog = receivedDataView.getText().toString();
-            String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
+            String timestamp = sdf.format(new Date());
             receivedDataView.setText("[" + timestamp + "] " + message + "\n" + currentLog);
         });
     }
@@ -290,6 +308,20 @@ public class BleConnectActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        if (autoConnectRequested) {
+            autoConnectRequested = false;
+            // 权限已授予，继续尝试连接
+            connectToDevice();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        runOnUiThread(() -> Toast.makeText(this, "权限被拒绝，无法自动连接", Toast.LENGTH_SHORT).show());
     }
 
     @Override
