@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
     private Button btnScanBle;
     private Button btnConnectSaved;
+    private Button btnEyesActivity;
     private BluetoothAdapter bluetoothAdapter;
     private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
         @Override
@@ -42,6 +43,15 @@ public class MainActivity extends AppCompatActivity {
         // 初始化按钮
         btnScanBle = findViewById(R.id.btnScanBle);
         btnConnectSaved = findViewById(R.id.btnConnectSaved);
+        btnEyesActivity = findViewById(R.id.btnEyesActivity);
+        
+        btnEyesActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, EyesActivity.class);
+                startActivity(intent);
+            }
+        });
         
         btnConnectSaved.setOnClickListener(new View.OnClickListener() {
             @Override
