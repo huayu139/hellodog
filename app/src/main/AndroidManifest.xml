@@ -22,6 +22,9 @@
         </activity>
         <activity android:name=".BleScanActivity" android:exported="true" />
         <activity android:name=".BleConnectActivity" android:exported="true" />
+    <activity android:name=".EyesActivity"
+        android:exported="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>
